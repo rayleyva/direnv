@@ -76,28 +76,79 @@
 
 <h2 id="USAGE">USAGE</h2>
 
-<p>return 0 if $1 is in the $PATH
-<code>has $program_name</code></p>
+<h3 id="has">has</h3>
 
-<p>Transforms a relative path to absolute path
-<code>expand_path $some_path</code></p>
+<p>return 0 if $1 is in the $PATH</p>
 
-<p>Utility function to prefix $PATH with $some_path.
-<code>PATH_add $some_path</code></p>
+<p>Example:</p>
+
+<pre><code>$ if has ruby; then echo "Yes you have" end
+Yes you have
+</code></pre>
+
+<h3 id="expand_path-path">expand_path $path</h3>
+
+<p>Transforms a relative path to absolute path</p>
+
+<p>Example:</p>
+
+<pre><code>$ pwd
+/path/to/project
+$ expand_path './bin'
+/path/to/project/bin
+</code></pre>
+
+<h3 id="PATH_add-some_path">PATH_add $some_path</h3>
+
+<p>Utility function to prefix $PATH with $some_path.</p>
+
+<p>Example:</p>
+
+<pre><code>$ PATH_add bin
+$ echo $PATH
+/path/to/project/bin:/usr/local/bin:/usr/bin
+</code></pre>
+
+<h3 id="layout-ruby">layout ruby</h3>
 
 <p>Sets your $GEM_HOME to ./.direnv/$ruby_version and adds the bin dir to your $PATH
 Adds ./bin to your $PATH
-Adds ./lib to your $RUBYLIB
-<code>layout ruby</code></p>
+Adds ./lib to your $RUBYLIB</p>
 
-<p>Adds the $cellar_path/$program/$version/bin to you $PATH
-<code>use $program $version</code></p>
+<p>Example:</p>
 
-<p>Loads another .envrc into your environment. The .envrc is loaded with the $PWD set to it's folder. This allows you to inherit environments.
-<code>source_env $other_dir_or_envrc</code></p>
+<pre><code>$ layout ruby
+</code></pre>
 
-<p>Wrapper to use rvm, like <code>rvm use 1.8.7</code>. Do that before <code>layout ruby</code> if you want to use both.
-<code>rvm ...</code></p>
+<h3 id="use-program-version">use $program $version</h3>
+
+<p>Adds the $cellar_path/$program/$version/bin to you $PATH</p>
+
+<p>Example:</p>
+
+<pre><code>$ use ruby 1.9.3
+Using ruby v1.9.3
+</code></pre>
+
+<h3 id="source_env">source_env</h3>
+
+<p>Loads another .envrc into your environment. The .envrc is loaded with the $PWD set to it's folder. This allows you to inherit environments.</p>
+
+<p>Example:</p>
+
+<pre><code>$ source_env ..
+direnv: loading /path/to/parent
+</code></pre>
+
+<h3 id="rvm">rvm</h3>
+
+<p>Wrapper to use rvm, like <code>rvm use 1.8.7</code>. Do that before <code>layout ruby</code> if you want to use both.</p>
+
+<p>Example:</p>
+
+<pre><code>$ rvm use 1.8.7
+using ruby 1.8.7
+</code></pre>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
