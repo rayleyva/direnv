@@ -88,9 +88,11 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>The <code>direnv</code> project aims to allow path-dependent environment variables in your shell. It has many uses but mine it to have project-specific settings so as to not clutter my <code>~/.profile</code>. I'm using it to specify ruby version, set AWS or SSH keys, ...</p>
+<p>The <code>direnv</code> project is a bash/zsh shell extension that allows you to load/unload environment variables depending on your path.</p>
 
-<p>The <code>direnv</code> command-line is a proxy to the sub-commands and it work like the <span class="man-ref">git<span class="s">(1)</span></span> wrapper. You don't usually use that anyways. Once the shell extension is loaded, most of the interaction is done in your <code>.envrc</code> files.</p>
+<p>It has many uses but mine it to have project-specific settings so as to not clutter my <code>~/.profile</code>. I'm using it to specify ruby version, set AWS or SSH keys, ...</p>
+
+<p>The <code>direnv</code> command-line is a proxy to the sub-commands and it work like the <span class="man-ref">git<span class="s">(1)</span></span> wrapper. You don't usually use that. Once the shell extension is loaded, most of the interaction is done in your <code>.envrc</code> files.</p>
 
 <h2 id="EXAMPLE">EXAMPLE</h2>
 
@@ -109,55 +111,57 @@ $ echo $PATH
 /usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin
 </code></pre>
 
-<p>For common usage examples, check out the wiki pages: https://github.com/zimbatm/direnv/wiki</p>
-
 <h2 id="USAGE">USAGE</h2>
 
 <p>Place a <code>.envrc</code> file in the folder you want and add some <span class="man-ref">export<span class="s">(1)</span></span> in it. If you <span class="man-ref">cd<span class="s">(1)</span></span> in that directory or child, the exported variables are available. If you <span class="man-ref">cd<span class="s">(1)</span></span> out of it, they are unloaded.</p>
 
 <p>A range of utility functions are available in the <code>.envrc</code> context and are documented in the <a class="man-ref" href="direnv-stdlib.1.html">direnv-stdlib<span class="s">(1)</span></a> page.</p>
 
-<p>If the <code>.envrc</code> file is added/changed/removed or you are no longer in the path, the environment is reloaded.</p>
+<p>If the <code>.envrc</code> file is added/changed/removed or you is no longer in the path, the environment is reloaded.</p>
 
 <h2 id="INSTALL">INSTALL</h2>
 
-<ul>
-<li>1a) Get the code and put direnv in your path</li>
-</ul>
+<h3 id="1-Install-the-code">1. Install the code</h3>
 
-
-<p>```</p>
-
-<pre><code>git clone http://github.com/zimbatm/shell-env
-ln -s `pwd`/direnv/bin /usr/local/bin/direnv
+<pre><code>git clone http://github.com/zimbatm/direnv
+cd direnv
+make install
+# or symlink bin/direnv into your $PATH
 </code></pre>
 
-<p>```</p>
+<p>For Mac users, you can also use <code>brew install direnv</code></p>
 
-<ul>
-<li><p>1b) Use homebrew (for OSX users)</p>
+<h3 id="2-Add-the-hook-for-your-shell">2. Add the hook for your shell</h3>
 
-<p> brew install direnv</p></li>
-<li><p>2) Add this line at the end of your .bashrc (after rvm, git-prompt, ...):</p></li>
-</ul>
-
-
-<p>```</p>
+<p>Add this line at the very end of your .bashrc or .zshrc:</p>
 
 <pre><code>eval `direnv hook $0`
 </code></pre>
 
-<p>```</p>
-
-<p>Note that zsh's "named directory" feature will replace %c in your PROMPT with "~DIRENV_DIR".</p>
+<p>Make sure it's even after rvm, git-prompt and other shell extensions that manipulate your prompt.</p>
 
 <h2 id="HOW-IT-WORKS">HOW IT WORKS</h2>
 
-<p>bash and zsh has a mechanism to execute code before each prompt is displayed. direnv uses that to <code>eval</code> a diff of your environment, adding or removing environment variables based on your $PATH and whenever or not an .envrc has been found. When a new .envrc is found, the old ENV is backed-up in DIRENV_BACKUP and used later for the restore. Then the direnv-stdlib + .envrc are evaled in a bash process and the diff is fed to the eval. Some ruby is used for the backup and the diff because it's hard to do it in bash. Ideally we wouldn't depend on ruby because it's not available everywhere.</p>
+<p>The first thing, <code>direnv hook</code> is going tell your shell to eval the output of <code>direnv export</code> before any prompt is displayed. This is the magic sauce. Notice how we didn't call <code>direnv-hook</code>. This is because <code>direnv</code> is a command dispatcher like <code>git</code>.</p>
+
+<p>Now when <code>direnv export</code> is executed, it checks your $PWD and parents for an .envrc file. If one is found, it loads it in bash and constructs a diff of the environment variables. It then prints the difference so that your shell can adjust, along with direnv-specific environment variables. This is how it stores it states and knows how to revert the changes when you cd to a different path.</p>
+
+<p>Notice that the .envrc is just a bash script from which direnv extracts the environment variables that are <code>export</code>-ed. It also sources some utility functions that may be handy to you. See the <a class="man-ref" href="direnv-stdlib.1.html">direnv-stdlib<span class="s">(1)</span></a> man page for these.</p>
+
+<p>That's about it ! I try to keep the tool simple and as an enabler.</p>
 
 <h2 id="CONTRIBUTE">CONTRIBUTE</h2>
 
-<p>Bug reports, contributions and forks are welcome. Just hop to <a href="http://github.com/zimbatm/direnv" data-bare-link="true">http://github.com/zimbatm/direnv</a> or drop me an email.</p>
+<p>Bug reports, contributions and forks are welcome.</p>
+
+<p>For bugs, report them on <a href="http://github.com/zimbatm/direnv/issues" data-bare-link="true">http://github.com/zimbatm/direnv/issues</a></p>
+
+<p>Or discuss by email <a href="&#x6d;&#x61;&#105;&#108;&#116;&#111;&#58;&#x64;&#x69;&#114;&#x65;&#x6e;&#x76;&#x40;&#x6c;&#x69;&#x62;&#x72;&#x65;&#108;&#105;&#115;&#116;&#x2e;&#x63;&#111;&#x6d;" data-bare-link="true">&#x64;&#105;&#114;&#101;&#x6e;&#x76;&#64;&#108;&#x69;&#98;&#114;&#101;&#x6c;&#105;&#115;&#116;&#46;&#x63;&#x6f;&#x6d;</a></p>
+
+<p>Or if you have some cool usages of direnv that you want to share, feel free to put them in the wiki
+<a href="https://github.com/zimbatm/direnv/wiki" data-bare-link="true">https://github.com/zimbatm/direnv/wiki</a></p>
+
+<p><a href="http://travis-ci.org/zimbatm/direnv"><img src="https://secure.travis-ci.org/zimbatm/direnv.png" alt="Build Status" /></a></p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
@@ -169,10 +173,12 @@ ln -s `pwd`/direnv/bin /usr/local/bin/direnv
 <li>Laurie Young (aka. wildfalcon) for fixing my engrish</li>
 <li>Martin Aumüller (aka. aumuell) for his patches and awesomeness</li>
 <li>Sam Stephenson (aka. sstephenson) for his expand_path code that I stole from https://github.com/sstephenson/bats</li>
+<li>Alexander Kobel for his patches</li>
+<li>Brian M. Clapper (aka. bmc) for his patch</li>
 </ul>
 
 
-<p>Copyright (C) 2011 Jonas Pfenniger <a href="&#109;&#x61;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#106;&#111;&#110;&#x61;&#x73;&#x40;&#x70;&#102;&#x65;&#110;&#110;&#x69;&#x67;&#101;&#114;&#x2e;&#110;&#x61;&#109;&#101;" data-bare-link="true">&#106;&#x6f;&#110;&#97;&#x73;&#x40;&#112;&#102;&#101;&#x6e;&#110;&#105;&#x67;&#101;&#114;&#46;&#x6e;&#x61;&#x6d;&#101;</a> and contributors under the MIT licence.</p>
+<p>Copyright (C) 2011 Jonas Pfenniger and contributors under the MIT licence.</p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
